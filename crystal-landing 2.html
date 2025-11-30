@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>光匣丨水晶测试</title>
+  <meta name="description" content="光匣丨水晶测试：基于 10 大心理-能量维度与 3 组能量风格轴，计算维度均分与风格偏向，输出主推荐与备选晶石。" />
+  <style>
+    :root {
+      --bg-start: #f7f8ff;
+      --bg-end: #e8f0ff;
+      --brand: #5b7cf7;
+      --brand-2: #7a5bf7;
+      --text: #111827;
+      --muted: #6b7280;
+      --card: rgba(255,255,255,0.6);
+      --border: rgba(255,255,255,0.65);
+      --shadow: 0 10px 30px rgba(91, 124, 247, 0.18);
+      --radius: 18px;
+      --radius-sm: 12px;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.8;
+      background: radial-gradient(1200px 600px at 20% 10%, #ffffff, var(--bg-start)) no-repeat,
+                  radial-gradient(1200px 600px at 80% 10%, #ffffff, var(--bg-end)) no-repeat,
+                  linear-gradient(180deg, #ffffff, var(--bg-end));
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      word-break: break-word;
+    }
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* 顶部导航 */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(1.2) blur(10px);
+      background: rgba(255,255,255,0.65);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1000px; margin: 0 auto; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .nav .brand { font-weight: 700; color: var(--brand-2); letter-spacing: 0.2px; }
+    .nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
+    .nav a.navlink {
+      display: block; padding: 8px 10px; border-radius: 10px; color: var(--text);
+    }
+    .nav a.navlink:hover { background: rgba(91,124,247,0.08); }
+
+    /* 容器与卡片 */
+    .container { max-width: 980px; margin: 0 auto; padding: 28px 16px 60px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px) saturate(1.2);
+    }
+    .card-body { padding: 22px; }
+
+    /* Hero */
+    .hero { margin-top: 20px; }
+    .hero .title {
+      font-size: clamp(22px, 4.5vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      margin: 0 0 10px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .hero .intro { color: var(--muted); font-size: 16px; }
+    .cta {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;
+    }
+    .btn {
+      appearance: none; border: none; cursor: pointer; outline: none;
+      padding: 12px 18px; border-radius: 14px; font-weight: 700; letter-spacing: 0.3px;
+      transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; box-shadow: 0 8px 18px rgba(122,91,247,0.25); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(122,91,247,0.28); }
+    .btn-secondary { background: rgba(91,124,247,0.12); color: var(--brand-2); }
+    .btn-secondary:hover { background: rgba(91,124,247,0.18); }
+
+    /* 分区标题与内容 */
+    section { margin-top: 26px; }
+    .section-title { font-weight: 800; font-size: 20px; margin: 0; }
+    .section-sub { color: var(--muted); margin: 8px 0 0; }
+    .list { margin: 14px 0 0; padding-left: 18px; }
+    .list li { margin: 8px 0; }
+
+    /* 逻辑卡片栅格 */
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 12; }
+    @media (min-width: 768px) { .col-6 { grid-column: span 6; } }
+
+    /* 角标与标签 */
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; color: #fff; background: linear-gradient(90deg, var(--brand), var(--brand-2)); }
+
+    /* 页脚与提示 */
+    footer { margin: 40px 0 20px; color: var(--muted); font-size: 13px; text-align: center; }
+
+    /* 复制提示 Toast */
+    .toast {
+      position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+      background: rgba(17,24,39,0.85); color: #fff; padding: 10px 14px; border-radius: 12px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    }
+    .toast.show { opacity: 1; pointer-events: auto; }
+
+    /* 平滑滚动与可读性优化 */
+    html { scroll-behavior: smooth; }
+    p, li { letter-spacing: 0.2px; }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <header>
+    <nav class="nav">
+      <div class="brand">水晶测试</div>
+      <ul>
+        <li><a class="navlink" href="#intro">简介</a></li>
+        <li><a class="navlink" href="#flow">流程</a></li>
+        <li><a class="navlink" href="#logic">逻辑</a></li>
+        <li><a class="navlink" href="#result">结果解读</a></li>
+        <li><a class="navlink" href="#faq">FAQ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Hero 首屏卡片：标题 + 简介 + CTA 固定于卡片 -->
+    <section id="intro" class="hero">
+      <div class="card">
+        <div class="card-body">
+
+          <h1 class="title">光匣丨水晶测试</h1>
+          <p class="intro">基于 10 大心理-能量维度的量表与 3 组能量风格轴，计算维度均分与风格偏向，输出主推荐与备选晶石。</p>
+          <div class="cta">
+            <button class="btn btn-primary" id="startBtn">开始测试</button>
+            <button class="btn btn-secondary" id="copyBtn">复制测试链接</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 测试流程 -->
+    <section id="flow">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="section-title">测试流程</h2>
+          <p class="section-sub">分为 3 个部分：量表评估、风格/偏好、结果呈现。</p>
+          <div class="grid" style="margin-top: 10px;">
+            <div class="col-6">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>Part 1｜10 大心理-能量维度量表</strong>
+                  <ul class="list">
+                    <li>每个维度 3–5 题，<span style="white-space:nowrap">1 = 完全不符合</span>，<span style="white-space:nowrap">5 = 非常符合</span></li>
+                    <li>作答后得到 10 个维度分数，排序出 <span style="white-space:nowrap">TOP 3</span> 需求</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>Part 2｜能量风格 & 使用偏好</strong>
+                  <ul class="list">
+                    <li>能量风格轴：
+                      <div style="margin-top:6px">
+                        • Grounding vs Expansion（需要稳住 vs 需要突破）<br />
+                        • Yin vs Yang（需要柔性滋养 vs 需要激活鼓舞）<br />
+                        • Inner vs Outer（更多内在修复 vs 外在表现支持）
+                      </div>
+                    </li>
+                    <li>使用形式偏好：戴在身上 / 放床头 / 放工作桌 / 仪式感套装（熏香、冥想、摆阵）</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>Part 3｜结果页</strong>
+                  <ul class="list">
+                    <li>给出「1 主题 + 2–3 个核心水晶 + 1–2 个辅助水晶」</li>
+                    <li>附带使用建议（形式 + 频率），以及简要注意事项</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 推荐逻辑概述 -->
+    <section id="logic">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="section-title">推荐逻辑概述</h2>
+          <p class="section-sub">基于维度均分与风格偏向，结合偏好裁决，输出主推荐与备选。</p>
+          <div class="grid" style="margin-top: 10px;">
+            <div class="col-6">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>Part 1｜维度计算</strong>
+                  <ul class="list">
+                    <li>每题 1–5 分，反向题按 <span style="white-space:nowrap">6 - 分</span> 倒置</li>
+                    <li>每个维度取平均分，得到 D1–D10 的均分</li>
+                    <li>维度分数 <span style="white-space:nowrap">Top 3</span> 用作主候选池</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>Part 2｜风格轴判定</strong>
+                  <ul class="list">
+                    <li>三组风格轴阈值：<span style="white-space:nowrap">≥ 3.5 高</span>、<span style="white-space:nowrap">≤ 2.5 低</span>、其间为中性</li>
+                    <li>轴名称（S1/S2/S3）：Grounding vs Expansion、Yin vs Yang、Inner vs Outer</li>
+                    <li>中性区间（2.5–3.5）不做风格加权</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card" style="background: rgba(255,255,255,0.75);">
+                <div class="card-body">
+                  <strong>并列与偏好裁决</strong>
+                  <ul class="list">
+                    <li>主推荐为模型综合得分最高者</li>
+                    <li>同分时按场景偏好（P1）加权 +1</li>
+                    <li>仍并列参考晶石库类别与主维度的贴合度</li>
+                    <li>仍并列按模型列出顺序进行稳定输出</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 结果解读 -->
+    <section id="result">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="section-title">结果解读</h2>
+          <p class="section-sub">结果页将围绕主题与核心/辅助水晶展开，并给出简明可执行的建议。</p>
+          <ul class="list">
+            <li>结构：1 主题 + 2–3 个核心水晶 + 1–2 个辅助水晶</li>
+            <li>通用放大器：可按需附加白水晶 / 赛琳石，用于整体能量的净化与增强</li>
+            <li>使用建议简述：结合你的场景偏好选择佩戴、床头放置、工作桌摆放或进行仪式感套装（熏香、冥想、摆阵）；形成稳定的日常或每周节奏，注意个体感受的反馈与适度调整</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ / 温馨提示与免责声明 -->
+    <section id="faq">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="section-title">温馨提示 / 免责声明</h2>
+          <ul class="list">
+            <li>本测试为身心灵启发参考，不替代医疗或专业诊断</li>
+            <li>孕期及特殊人群使用前请咨询专业意见；如有不适请立即停止并寻求专业支持</li>
+            <li>测试结果旨在帮助你更好地识别当下的身心需求与支持方向，非绝对结论</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      © 水晶测试说明页 · 由现代渐变与轻玻璃态设计呈现 · 如需视觉与文案微调，欢迎反馈需求
+    </footer>
+  </main>
+
+  <div id="toast" class="toast">链接已复制</div>
+
+  <script>
+    (function() {
+      const TEST_LINK = 'https://731b93511bcd.aime-app.bytedance.net';
+      const startBtn = document.getElementById('startBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      const toast = document.getElementById('toast');
+
+      startBtn.addEventListener('click', function() {
+        window.open(TEST_LINK, '_blank', 'noopener');
+      });
+
+      copyBtn.addEventListener('click', async function() {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(TEST_LINK);
+          } else {
+            const ta = document.createElement('textarea');
+            ta.value = TEST_LINK; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+          }
+          showToast('测试链接已复制');
+        } catch (e) {
+          showToast('复制失败，请手动复制：' + TEST_LINK);
+        }
+      });
+
+      function showToast(text) {
+        toast.textContent = text || '已复制';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+      }
+    })();
+  </script>
+</body>
+</html>
